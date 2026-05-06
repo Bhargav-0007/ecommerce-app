@@ -17,6 +17,11 @@ dist-ssr
 .env.local
 .env.production
 
+# Java / Maven build output
+server/target/
+server/data/
+*.zip
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
