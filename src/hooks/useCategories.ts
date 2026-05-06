@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiUrl } from '../lib/api';
 
 export interface ApiCategoryFull {
   id: string;
@@ -14,7 +15,7 @@ export function useCategories() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/categories')
+    fetch(apiUrl('/api/categories'))
       .then((r) => r.json() as Promise<ApiCategoryFull[]>)
       .then((data) => setCategories(data))
       .catch(() => {})

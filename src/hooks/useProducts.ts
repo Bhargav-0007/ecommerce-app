@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { PRODUCTS_PER_PAGE } from '../constants/theme';
+import { apiUrl } from '../lib/api';
 
 export interface ApiCategory {
   id: string;
@@ -62,7 +63,7 @@ export function useProducts({
     params.set('sortBy', sortBy);
     params.set('sortDir', sortDir);
 
-    fetch(`/api/products?${params}`)
+    fetch(apiUrl(`/api/products?${params}`))
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load products');
         return r.json() as Promise<ProductsPage>;
@@ -85,7 +86,7 @@ export function useProduct(slug: string) {
     setLoading(true);
     setError(null);
 
-    fetch(`/api/products/${slug}`)
+    fetch(apiUrl(`/api/products/${slug}`))
       .then((r) => {
         if (r.status === 404) throw new Error('Product not found');
         if (!r.ok) throw new Error('Failed to load product');
