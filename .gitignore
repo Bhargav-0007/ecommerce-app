@@ -32,3 +32,9 @@ server/data/
 *.njsproj
 *.sln
 *.sw?
+
+# Claude Code tooling — never commit
+.claude/
+
+# H2 stale artifact from Maven working-dir mismatch
+server/server/
