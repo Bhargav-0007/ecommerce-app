@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Products from './pages/Products';
 import Cart from './pages/Cart';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import NotFound from './pages/NotFound';
 import { ROUTES } from './constants/theme';
 
@@ -12,10 +13,11 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route element={<Layout />}>
-          <Route path={ROUTES.HOME}     element={<Home />} />
-          <Route path={ROUTES.PRODUCTS} element={<Products />} />
-          <Route path={ROUTES.CART}     element={<Cart />} />
-          <Route path={ROUTES.LOGIN}    element={<Login />} />
+          <Route path={ROUTES.HOME}      element={<Home />} />
+          <Route path={ROUTES.PRODUCTS}  element={<Products />} />
+          <Route path={ROUTES.CART}      element={<Cart />} />
+          <Route path={ROUTES.LOGIN}     element={<Login />} />
+          <Route path={ROUTES.REGISTER}  element={<Register />} />
           <Route path={ROUTES.NOT_FOUND} element={<NotFound />} />
         </Route>
       </Routes>
