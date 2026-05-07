@@ -33,7 +33,7 @@ server/data/
 *.sln
 *.sw?
 
-# Claude Code tooling — never commit
+# IDE tooling — never commit
 .claude/
 
 # H2 stale artifact from Maven working-dir mismatch

@@ -1,6 +1,6 @@
-# Appkhila — Full-Stack E-Commerce Website
+# Appkhila — Full-Stack E-Commerce Platform
 
-A modern, full-featured e-commerce web application built with React, TypeScript, and Tailwind CSS.
+A modern, production-ready e-commerce web application built with React + TypeScript on the frontend and Java Spring Boot on the backend.
 
 ---
 
@@ -8,43 +8,35 @@ A modern, full-featured e-commerce web application built with React, TypeScript,
 
 | Layer | Technology |
 |---|---|
-| Frontend | React 18 + TypeScript |
+| Frontend | React 19 + TypeScript |
 | Build Tool | Vite |
 | Styling | Tailwind CSS v3 |
-| Routing | React Router v6 |
-| State Management | Zustand |
-| Backend *(Step 8)* | Node.js + Express |
-| Database *(Step 8)* | SQLite |
+| Routing | React Router v7 |
+| State Management | Zustand (persisted) |
+| Backend | Java 17 + Spring Boot 3.3 |
+| Auth | Spring Security 6 + JWT (JJWT 0.12) |
+| ORM | Spring Data JPA + Hibernate |
+| Database (dev) | H2 (file-based) |
+| Database (prod) | PostgreSQL |
+| Deployment | Vercel (frontend) + Railway (backend) |
 
 ---
 
 ## Features
 
-- Responsive Home page with Hero, Categories, and Promotions
-- Product catalog with filters and search
-- Product detail pages with image gallery
-- Shopping cart with real-time updates
-- User authentication (register / login)
-- Full checkout flow
-- Order history & tracking
-- Admin dashboard
+### Store (Public)
+- Responsive home page — hero, featured products, categories, promotions, newsletter
+- Product catalog with category sidebar, sort controls, and URL-based pagination
+- Product detail page — image viewer, quantity picker, stock status
+- Add to cart with toast notifications, cart badge in header
+- Mobile-friendly header with slide-out drawer, search bar
 
----
-
-## Project Roadmap
-
-| Step | Progress | What's Built |
-|---|---|---|
-| 1 | ✅ Done | Project setup, routing, Home page |
-| 2 | 🔜 Next | Header, Footer, responsive navigation |
-| 3 | ⬜ | Product catalog, filters, search |
-| 4 | ⬜ | Product detail page, reviews |
-| 5 | ⬜ | Shopping cart |
-| 6 | ⬜ | User authentication |
-| 7 | ⬜ | Checkout flow |
-| 8 | ⬜ | Backend API + database |
-| 9 | ⬜ | Order management, admin panel |
-| 10 | ⬜ | Polish, SEO, deployment |
+### Admin Panel (`/admin`)
+- Secure JWT-based login — admin auto-redirected on sign in
+- **Dashboard** — live stats: revenue, orders, products, users
+- **Product management** — add, edit, delete products with image, pricing, stock, category
+- **Order management** — view all orders, update status (Pending → Processing → Shipped → Delivered → Cancelled), expand to see order items
+- **User management** — list, add, edit, delete users; promote to Admin or demote to Customer
 
 ---
 
@@ -52,48 +44,159 @@ A modern, full-featured e-commerce web application built with React, TypeScript,
 
 ### Prerequisites
 
-- Node.js 18+
-- npm 9+
+| Tool | Version |
+|---|---|
+| Node.js | 18+ |
+| Java | 17 |
+| Maven | 3.9+ (bundled via wrapper) |
 
-### Installation
+### 1. Install frontend dependencies
 
 ```bash
-# Clone the repository
-git clone https://github.com/Bhargav/appkhila.git
-cd appkhila
-
-# Install dependencies
 npm install
-
-# Start the development server
-npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+### 2. Start both servers
 
-### Available Scripts
+**Option A — two separate terminals:**
 
 ```bash
-npm run dev      # Start dev server with hot-reload
-npm run build    # Production build → dist/
-npm run preview  # Preview the production build locally
+# Terminal 1: Frontend (http://localhost:5173)
+npm run dev
+
+# Terminal 2: Backend API (http://localhost:3001)
+npm run dev:server
+```
+
+**Option B — single command:**
+
+```bash
+npm run dev:all
+```
+
+### 3. Open the app
+
+| URL | What |
+|---|---|
+| http://localhost:5173 | Store (public) |
+| http://localhost:5173/login | Sign in |
+| http://localhost:5173/admin | Admin panel |
+
+### Default Admin Credentials
+
+```
+Email:    admin@appkhila.com
+Password: admin123
+```
+
+> Change these immediately after first login via the Users page in the admin panel.
+
+---
+
+## Project Structure
+
+```
+ecommerce-app/
+├── src/                          # React frontend
+│   ├── components/
+│   │   ├── layout/               # Header, Footer, Layout
+│   │   ├── product/              # ProductCard
+│   │   └── ui/                   # Toast, Skeleton, Breadcrumb, ScrollToTop
+│   ├── constants/                # Routes, theme values, site name
+│   ├── hooks/                    # useProducts, useCategories API hooks
+│   ├── lib/                      # apiUrl(), authHeaders() utilities
+│   ├── pages/
+│   │   ├── admin/                # AdminLayout, Dashboard, Products, Orders, Users
+│   │   ├── Home.tsx
+│   │   ├── Products.tsx
+│   │   ├── ProductDetail.tsx
+│   │   ├── Login.tsx
+│   │   ├── Cart.tsx
+│   │   └── Register.tsx
+│   ├── store/                    # cartStore, authStore, uiStore (Zustand)
+│   └── types/                    # TypeScript interfaces
+│
+└── server/                       # Spring Boot backend
+    └── src/main/java/com/appkhila/server/
+        ├── controller/           # ProductController, CategoryController,
+        │                         # AuthController, Admin*Controllers
+        ├── model/                # Product, Category, User, Order, OrderItem
+        ├── repository/           # JPA repositories
+        ├── dto/                  # Request/response DTOs
+        ├── security/             # JwtUtil, JwtFilter, SecurityConfig
+        └── DataSeeder.java       # Seeds categories, products, default admin
 ```
 
 ---
 
-## Folder Structure
+## API Endpoints
 
-```
-src/
-├── components/
-│   └── layout/       # Header, Footer, Layout wrapper
-├── constants/        # ROUTES, SITE_NAME, theme values
-├── data/             # Mock data (categories, products)
-├── pages/            # One file per route
-├── store/            # Zustand global state
-├── types/            # TypeScript interfaces
-└── hooks/            # Custom React hooks
-```
+### Public
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/products` | Paginated product list (filter, sort, search) |
+| GET | `/api/products/featured` | Featured products |
+| GET | `/api/products/:slug` | Single product |
+| GET | `/api/categories` | All categories |
+| GET | `/api/categories/:slug` | Single category |
+| POST | `/api/auth/login` | Login — returns JWT + user |
+
+### Admin (requires `Authorization: Bearer <token>`)
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/admin/stats` | Dashboard metrics |
+| GET/POST/PUT/DELETE | `/api/admin/products` | Product CRUD |
+| GET/POST/PUT/DELETE | `/api/admin/users` | User management |
+| GET | `/api/admin/orders` | All orders |
+| PUT | `/api/admin/orders/:id/status` | Update order status |
+
+---
+
+## Environment Variables
+
+### Frontend (Vercel)
+| Variable | Description |
+|---|---|
+| `VITE_API_BASE_URL` | Railway backend URL (e.g. `https://your-app.up.railway.app`) |
+
+### Backend (Railway)
+| Variable | Description |
+|---|---|
+| `SPRING_PROFILES_ACTIVE` | Set to `prod` to use PostgreSQL |
+| `PGHOST` / `PGPORT` / `PGDATABASE` / `PGUSER` / `PGPASSWORD` | Auto-set by Railway PostgreSQL plugin |
+| `ALLOWED_ORIGINS` | Comma-separated allowed CORS origins (e.g. `https://appkhila.vercel.app`) |
+| `JWT_SECRET` | Secret key for signing JWTs (min 32 characters) |
+
+---
+
+## Deployment
+
+### Backend → Railway
+1. New project → Deploy from GitHub → set **Root Directory** to `/server`
+2. Add **PostgreSQL** plugin (env vars injected automatically)
+3. Set env vars: `SPRING_PROFILES_ACTIVE=prod`, `ALLOWED_ORIGINS=<vercel-url>`, `JWT_SECRET=<secret>`
+
+### Frontend → Vercel
+1. New project → Import GitHub repo (root directory stays `/`)
+2. Set env var: `VITE_API_BASE_URL=<railway-url>`
+3. Deploy
+
+---
+
+## Roadmap
+
+| Step | Status | Description |
+|---|---|---|
+| 1 | ✅ Done | Vite + React scaffold, routing, Home page |
+| 2 | ✅ Done | Spring Boot API, Header, Footer, Zustand stores, Toast system |
+| 3 | ✅ Done | Product catalog, filters, sort, pagination, Product detail page |
+| 4 | ✅ Done | Admin panel — auth (JWT), product/user/order management |
+| 5 | 🔜 Next | Shopping cart page + full checkout flow |
+| 6 | ⬜ | Customer auth (register, login, account page) |
+| 7 | ⬜ | Order history + tracking for customers |
+| 8 | ⬜ | Reviews & ratings |
+| 9 | ⬜ | Search improvements, SEO, performance |
+| 10 | ⬜ | Final polish + production hardening |
 
 ---
 
